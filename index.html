@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyr Festas</title>
+
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="https://res.cloudinary.com/dzt1kqdbc/image/upload/v1778847413/favicon-32x32_ei8qnz.png">
+    <link rel="icon" type="image/png" sizes="192x192"
+        href="https://res.cloudinary.com/dzt1kqdbc/image/upload/v1778847399/android-chrome-192x192_zumj1m.png">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="https://res.cloudinary.com/dzt1kqdbc/image/upload/v1778847410/apple-touch-icon_eqkoqp.png">
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ─── TOKENS ─────────────────────────────── */
+        :root {
+            --brand-orange: #f4a000;
+            --brand-bg: #0d0d0d;
+            --white: #ffffff;
+            --gray-1: #f5f5f5;
+            --gray-2: #e0e0e0;
+            --gray-text: #6b6b6b;
+            --transition: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            --footer-h: 54px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: var(--white);
+            color: var(--brand-bg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ─── CANVAS — z-index acima do footer ────── */
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 35;
+            /* acima do bio-footer (30) */
+            pointer-events: none;
+        }
+
+        /* ─── GEO LAYER — z-index acima do footer ─── */
+        .geo-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 36;
+            /* acima do canvas */
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .geo-px {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* ─── GEO RINGS — posições IDÊNTICAS à Landing Page
+               opacidades aumentadas para fundo branco ────── */
+        .geo-ring-1 {
+            position: absolute;
+            width: 680px;
+            height: 680px;
+            top: 50%;
+            left: -160px;
+            margin-top: -340px;
+            border-radius: 50%;
+            border: 1px solid rgba(244, 160, 0, 0.45);
+            animation: spin-cw 60s linear infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-ring-2 {
+            position: absolute;
+            width: 460px;
+            height: 460px;
+            top: 50%;
+            left: -60px;
+            margin-top: -230px;
+            border-radius: 50%;
+            border: 1px dashed rgba(244, 160, 0, 0.50);
+            animation: spin-ccw 38s linear infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-ring-3 {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            top: -60px;
+            right: 180px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(244, 160, 0, 0.55);
+            animation: spin-cw 28s linear infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-ring-4 {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: 38%;
+            right: 120px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(244, 160, 0, 0.82);
+            animation: spin-ccw 18s linear infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-ring-5 {
+            position: absolute;
+            width: 520px;
+            height: 520px;
+            bottom: -180px;
+            right: -120px;
+            border-radius: 50%;
+            border: 1px solid rgba(244, 160, 0, 0.35);
+            animation: spin-cw 75s linear infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-sq-1 {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            top: 22%;
+            right: 28%;
+            border: 1px solid rgba(244, 160, 0, 0.65);
+            animation: spin-cw 20s linear infinite,
+                geo-drift-1 12s ease-in-out infinite alternate;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-sq-2 {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            bottom: 28%;
+            left: 42%;
+            border: 1px solid rgba(244, 160, 0, 0.75);
+            animation: spin-ccw 14s linear infinite,
+                geo-drift-2 9s ease-in-out infinite alternate;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-sq-3 {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            top: 55%;
+            right: 32%;
+            background: rgba(244, 160, 0, 0.65);
+            animation: spin-cw 10s linear infinite,
+                geo-drift-3 7s ease-in-out infinite alternate;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-dot-1 {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            top: 30%;
+            right: 22%;
+            border-radius: 50%;
+            background: var(--brand-orange);
+            animation: pulse-dot 4s ease-in-out infinite;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-dot-2 {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            bottom: 35%;
+            left: 38%;
+            border-radius: 50%;
+            background: var(--brand-orange);
+            animation: pulse-dot 6s ease-in-out infinite 2s;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-dot-3 {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            top: 65%;
+            right: 40%;
+            border-radius: 50%;
+            background: var(--brand-orange);
+            animation: pulse-dot 5s ease-in-out infinite 1s;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+        }
+
+        .geo-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .geo-visible {
+            opacity: 1 !important;
+        }
+
+        /* ─── KEYFRAMES ──────────────────────────── */
+        @keyframes spin-cw {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin-ccw {
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        @keyframes geo-drift-1 {
+            from {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            to {
+                transform: translate(8px, -12px) rotate(45deg);
+            }
+        }
+
+        @keyframes geo-drift-2 {
+            from {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-6px, 10px) rotate(-60deg);
+            }
+        }
+
+        @keyframes geo-drift-3 {
+            from {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            to {
+                transform: translate(10px, 6px) rotate(90deg);
+            }
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 0.12;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.65;
+                transform: scale(1.8);
+            }
+        }
+
+        @keyframes float-physics {
+            0% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bio-logo-enter {
+            from {
+                opacity: 0;
+                transform: scale(0.82);
+                filter: blur(14px) drop-shadow(0 0 0 rgba(244, 160, 0, 0));
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0) drop-shadow(0 0 52px rgba(244, 160, 0, 0.45)) drop-shadow(0 0 16px rgba(244, 160, 0, 0.28));
+            }
+        }
+
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modal-in {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* char split */
+        .char {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: bottom;
+        }
+
+        .char-inner {
+            display: inline-block;
+            transform: translateY(110%);
+            transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .char-inner.revealed {
+            transform: translateY(0);
+        }
+
+        /* ─── LAYOUT ─────────────────────────────── */
+        .bio-page {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(32px, 6vh, 72px) clamp(16px, 4vw, 40px) calc(var(--footer-h) + 28px);
+        }
+
+        .bio-inner {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 44px;
+            align-items: center;
+        }
+
+        @media (min-width: 860px) {
+            .bio-inner {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: clamp(32px, 5.5vw, 72px);
+            }
+        }
+
+        /* ─── IDENTITY ───────────────────────────── */
+        .bio-identity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: clamp(18px, 3vh, 28px);
+        }
+
+        /* Logo */
+        .bio-logo-outer {
+            flex-shrink: 0;
+        }
+
+        .bio-logo-outer.logo-floating {
+            animation: float-physics 4.5s ease-in-out infinite;
+        }
+
+        .bio-logo {
+            width: clamp(160px, 26vw, 265px);
+            height: auto;
+            opacity: 0;
+            transition: opacity 0.6s ease 3s;
+        }
+
+        .bio-logo.logo-entering {
+            transition: none;
+            animation: bio-logo-enter 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Tagline — empilhada verticalmente */
+        .bio-tagline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        .bio-tagline.el-visible {
+            opacity: 1;
+        }
+
+        /* Texto principal: Anton, escuro, maior */
+        .bio-tag-main {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(20px, 3vw, 40px);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--brand-bg);
+            line-height: 1;
+        }
+
+        /* Separador horizontal entre os dois textos */
+        .bio-sep {
+            width: clamp(60px, 10vw, 100px);
+            height: 2px;
+            background: linear-gradient(to right,
+                    transparent, rgba(244, 160, 0, 0.60), transparent);
+            flex-shrink: 0;
+        }
+
+        /* Texto secundário: Barlow Condensed, laranja, generoso */
+        .bio-tag-sub {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(15px, 2.2vw, 26px);
+            font-weight: 600;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--brand-orange);
+            line-height: 1;
+        }
+
+        /* ─── SEASON PILLS — vazadas com ícone ────── */
+        .bio-seasons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        .bio-seasons.el-visible {
+            opacity: 1;
+        }
+
+        .season-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            padding: 7px 14px;
+            border-radius: 100px;
+            color: var(--pill-color, var(--brand-orange));
+            background: transparent;
+            border: 1.5px solid var(--pill-color, var(--brand-orange));
+            white-space: nowrap;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .season-pill:hover {
+            background: var(--pill-color, var(--brand-orange));
+            color: #fff;
+        }
+
+        .season-pill-icon {
+            font-size: 14px;
+            line-height: 1;
+            /* neutraliza letter-spacing no ícone */
+            letter-spacing: 0;
+        }
+
+        /* ─── ACTIONS ────────────────────────────── */
+        .bio-actions-col {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(20px, 3.5vh, 32px);
+            opacity: 0;
+            animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-play-state: paused;
+        }
+
+        .bio-actions-col.el-visible {
+            animation-play-state: running;
+        }
+
+        /* Botões */
+        .bio-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .bio-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            padding: 16px 14px;
+            border-radius: 100px;
+            border: 2px solid transparent;
+            transition: all var(--transition);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .bio-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .bio-btn-primary {
+            background: #25D366;
+            color: #fff;
+            border-color: #25D366;
+        }
+
+        .bio-btn-primary:hover {
+            background: #1ebe5a;
+            border-color: #1ebe5a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(37, 211, 102, 0.35);
+        }
+
+        .bio-btn-outline {
+            background: transparent;
+            color: var(--brand-bg);
+            border-color: rgba(244, 160, 0, 0.55);
+        }
+
+        .bio-btn-outline:hover {
+            background: var(--brand-orange);
+            border-color: var(--brand-orange);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(244, 160, 0, 0.32);
+        }
+
+        /* ─── EMAIL CAPTURE ──────────────────────── */
+        .bio-newsletter {
+            border-top: 3px solid var(--brand-orange);
+            padding-top: clamp(16px, 2.5vh, 24px);
+        }
+
+        .bio-newsletter-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--brand-orange);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .bio-email-row {
+            display: flex;
+            border: 1.5px solid var(--gray-2);
+            border-radius: 100px;
+            overflow: hidden;
+            background: var(--white);
+            transition: border-color var(--transition);
+        }
+
+        .bio-email-row:focus-within {
+            border-color: var(--brand-orange);
+        }
+
+        .bio-email-input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 18px;
+            border: none;
+            outline: none;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            color: var(--brand-bg);
+            background: transparent;
+        }
+
+        .bio-email-input::placeholder {
+            color: #c0c0c0;
+        }
+
+        .bio-email-btn {
+            padding: 10px 20px;
+            background: var(--brand-orange);
+            color: var(--brand-bg);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 0 100px 100px 0;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background var(--transition);
+        }
+
+        .bio-email-btn:hover {
+            background: #e09000;
+        }
+
+        .bio-email-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .bio-email-note {
+            font-size: 11px;
+            color: var(--gray-text);
+            margin-top: 8px;
+            display: block;
+            min-height: 16px;
+        }
+
+        /* ─── CONTATO ────────────────────────────── */
+        .bio-contact {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .bio-contact-item {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: var(--gray-text);
+        }
+
+        .bio-contact-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(244, 160, 0, 0.5);
+            flex-shrink: 0;
+        }
+
+        /* ─── FOOTER FIXO ────────────────────────── */
+        .bio-footer {
+            /* position: fixed; */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--footer-h);
+            z-index: 30;
+            /* abaixo do canvas/geo (35/36) mas visível */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(244, 160, 0, 0.18);
+        }
+
+        .bio-footer-item {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray-text);
+        }
+
+        .bio-footer-link {
+            transition: color var(--transition);
+        }
+
+        .bio-footer-link:hover {
+            color: var(--brand-orange);
+        }
+
+        .bio-footer-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--gray-2);
+            flex-shrink: 0;
+        }
+
+        /* ─── MODAL POLÍTICA DE PRIVACIDADE ──────── */
+        .modal-privacy {
+            position: fixed;
+            inset: 0;
+            z-index: 9200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-privacy[hidden] {
+            display: none;
+        }
+
+        .modal-privacy-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 13, 13, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .modal-privacy-card {
+            position: relative;
+            z-index: 1;
+            background: var(--white);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 640px;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.40);
+            animation: modal-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .modal-privacy-close {
+            position: sticky;
+            top: 16px;
+            float: right;
+            margin: 16px 16px 0 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.07);
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition);
+            z-index: 2;
+        }
+
+        .modal-privacy-close:hover {
+            background: rgba(0, 0, 0, 0.14);
+        }
+
+        .modal-privacy-content {
+            padding: 8px 36px 36px;
+        }
+
+        .modal-privacy-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 24px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--brand-bg);
+            margin-bottom: 4px;
+            clear: both;
+        }
+
+        .modal-privacy-updated {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-bottom: 24px;
+        }
+
+        .modal-privacy-content h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brand-bg);
+            margin: 20px 0 8px;
+        }
+
+        .modal-privacy-content p {
+            font-size: 14px;
+            color: var(--gray-text);
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 800px) {
+            .geo-ring-1 {
+                display: none;
+            }
+
+            .geo-ring-5 {
+                display: none;
+            }
+
+            .geo-ring-2 {
+                width: 280px;
+                height: 280px;
+                margin-top: -140px;
+                left: -80px;
+            }
+
+            .geo-ring-3 {
+                width: 140px;
+                height: 140px;
+                right: 10px;
+                top: -40px;
+            }
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────── */
+        @media (max-width: 480px) {
+            .bio-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .bio-tag-main {
+                white-space: normal;
+            }
+
+            .bio-tag-sub {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fundo -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="geo-layer">
+        <div class="geo-px" data-depth="0.15">
+            <div class="geo-ring-1"></div>
+        </div>
+        <div class="geo-px" data-depth="0.25">
+            <div class="geo-ring-2"></div>
+        </div>
+        <div class="geo-px" data-depth="0.35">
+            <div class="geo-ring-3"></div>
+        </div>
+        <div class="geo-px" data-depth="0.55">
+            <div class="geo-ring-4"></div>
+        </div>
+        <div class="geo-px" data-depth="0.12">
+            <div class="geo-ring-5"></div>
+        </div>
+        <div class="geo-px" data-depth="0.40">
+            <div class="geo-sq-1"></div>
+        </div>
+        <div class="geo-px" data-depth="0.60">
+            <div class="geo-sq-2"></div>
+        </div>
+        <div class="geo-px" data-depth="0.50">
+            <div class="geo-sq-3"></div>
+        </div>
+        <div class="geo-px" data-depth="0.40">
+            <div class="geo-dot-1"></div>
+        </div>
+        <div class="geo-px" data-depth="0.40">
+            <div class="geo-dot-2"></div>
+        </div>
+        <div class="geo-px" data-depth="0.40">
+            <div class="geo-dot-3"></div>
+        </div>
+        <svg class="geo-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none">
+            <line x1="820" y1="900" x2="1440" y2="240" style="stroke:rgba(244,160,0,0.16);stroke-width:1" />
+            <line x1="900" y1="900" x2="1440" y2="360" style="stroke:rgba(244,160,0,0.10);stroke-width:1" />
+            <line x1="0" y1="200" x2="340" y2="0" style="stroke:rgba(244,160,0,0.10);stroke-width:1" />
+            <line x1="1080" y1="460" x2="1140" y2="460" style="stroke:rgba(244,160,0,0.50);stroke-width:1" />
+            <line x1="1090" y1="472" x2="1130" y2="472" style="stroke:rgba(244,160,0,0.30);stroke-width:1" />
+            <line x1="680" y1="128" x2="680" y2="158" style="stroke:rgba(244,160,0,0.55);stroke-width:1.5" />
+            <line x1="665" y1="143" x2="695" y2="143" style="stroke:rgba(244,160,0,0.55);stroke-width:1.5" />
+        </svg>
+    </div>
+
+    <!-- Conteúdo -->
+    <main class="bio-page">
+        <div class="bio-inner">
+
+            <!-- Identidade -->
+            <div class="bio-identity">
+
+                <div class="bio-logo-outer" id="bio-logo-outer">
+                    <img src="https://res.cloudinary.com/dzt1kqdbc/image/upload/v1778845994/LOGO_NYR_pvsjqk.webp"
+                        alt="Nyr Festas" class="bio-logo" id="bio-logo-img" fetchpriority="high">
+                </div>
+
+                <div class="bio-tagline" id="bio-tagline">
+                    <span class="bio-tag-main">Artigos de Festas Sazonais</span>
+                    <div class="bio-sep"></div>
+                    <span class="bio-tag-sub">Distribuidora B2B</span>
+                </div>
+
+                <div class="bio-seasons" id="bio-seasons">
+                    <span class="season-pill" style="--pill-color:#C2185B">
+                        <span class="season-pill-icon">🎊</span>Carnaval
+                    </span>
+                    <span class="season-pill" style="--pill-color:#C8410B">
+                        <span class="season-pill-icon">🌽</span>Festa Junina
+                    </span>
+                    <span class="season-pill" style="--pill-color:#FF7800">
+                        <span class="season-pill-icon">🎃</span>Halloween
+                    </span>
+                    <span class="season-pill" style="--pill-color:#002776">
+                        <span class="season-pill-icon">⚽</span>Copa
+                    </span>
+                    <span class="season-pill" style="--pill-color:#7E57C2">
+                        <span class="season-pill-icon">🐣</span>Páscoa
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Ações -->
+            <div class="bio-actions-col" id="bio-actions">
+
+                <div class="bio-buttons">
+                    <a href="https://wa.me/5511994698952?text=Ol%C3%A1%2C%20Nyr%20Festas!%20Cheguei%20pelo%20Link%20da%20Bio%20do%20Instagram%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
+                        class="bio-btn bio-btn-primary" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.129.558 4.126 1.532 5.856L.057 23.784a.5.5 0 0 0 .602.617l6.077-1.43A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.524-5.18-1.434l-.37-.22-3.827.901.928-3.73-.242-.384A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                        </svg>
+                        Fale Conosco
+                    </a>
+                    <a href="https://nyrfestas.com.br" class="bio-btn bio-btn-outline" target="_blank" rel="noopener">
+                        Conheça a Nyr →
+                    </a>
+                </div>
+
+                <div class="bio-newsletter">
+                    <span class="bio-newsletter-label">Receber novidades</span>
+                    <div class="bio-email-row">
+                        <input class="bio-email-input" type="email" id="bio-email-input" placeholder="seu@email.com.br"
+                            autocomplete="email">
+                        <input type="text" id="bio-honeypot" style="display:none" tabindex="-1" autocomplete="off">
+                        <button class="bio-email-btn" id="bio-email-btn" onclick="submitBioEmail()">Inscrever</button>
+                    </div>
+                    <span class="bio-email-note" id="bio-email-note"></span>
+                </div>
+
+                <div class="bio-contact">
+                    <span class="bio-contact-item">(11) 2337-4241</span>
+                    <div class="bio-contact-dot"></div>
+                    <span class="bio-contact-item" id="bio-email-addr"></span>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer fixo -->
+    <footer class="bio-footer">
+        <a href="#" id="privacy-link" class="bio-footer-item bio-footer-link">
+            Política de Privacidade
+        </a>
+        <div class="bio-footer-dot"></div>
+        <span class="bio-footer-item">© 2025 Nyr Festas</span>
+    </footer>
+
+    <!-- Modal Política de Privacidade -->
+    <div id="modal-privacy" class="modal-privacy" hidden>
+        <div class="modal-privacy-overlay" id="modal-privacy-overlay"></div>
+        <div class="modal-privacy-card">
+            <button class="modal-privacy-close" id="modal-privacy-close">&times;</button>
+            <div class="modal-privacy-content">
+                <h2 class="modal-privacy-title">Política de Privacidade</h2>
+                <p class="modal-privacy-updated">Última atualização: maio de 2025</p>
+                <h3>1. Quem somos</h3>
+                <p>Nyr Festas Comercial Ltda, inscrita sob o CNPJ 09.722.322/0001-19, com sede em São Paulo – SP, é a
+                    controladora dos dados pessoais tratados por este site. Contato: <strong>vendas@mm88.com.br</strong>
+                </p>
+                <h3>2. Quais dados coletamos</h3>
+                <p><strong>E-mail:</strong> coletado voluntariamente pelo formulário de inscrição de novidades,
+                    armazenado em planilha eletrônica hospedada no Google Workspace.</p>
+                <p><strong>Dados técnicos (localStorage):</strong> usado exclusivamente para controle de intervalo entre
+                    envios (rate limiting). Nenhum dado pessoal é transmitido por esse mecanismo.</p>
+                <h3>3. Finalidade do tratamento</h3>
+                <p>O e-mail é utilizado para envio de comunicações comerciais e novidades. Base legal: consentimento do
+                    titular (Art. 7º, I, da LGPD – Lei 13.709/2018).</p>
+                <h3>4. Compartilhamento de dados</h3>
+                <p>Os dados não são vendidos, cedidos ou compartilhados com terceiros para fins comerciais. O
+                    armazenamento no Google está sujeito aos seus Termos de Serviço e Política de Privacidade.</p>
+                <h3>5. Prazo de retenção</h3>
+                <p>Os e-mails são mantidos enquanto houver interesse comercial legítimo ou até que o titular solicite a
+                    exclusão.</p>
+                <h3>6. Direitos do titular</h3>
+                <p>Nos termos da LGPD, você tem direito a confirmar, acessar, corrigir, excluir seus dados e revogar o
+                    consentimento. Entre em contato pelo e-mail <strong>vendas@mm88.com.br</strong>.</p>
+                <h3>7. Segurança</h3>
+                <p>Adotamos medidas técnicas e organizacionais adequadas para proteger os dados pessoais contra acesso
+                    não autorizado ou destruição acidental.</p>
+                <h3>8. Alterações</h3>
+                <p>Esta política pode ser atualizada periodicamente. Alterações relevantes serão comunicadas nesta
+                    página.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ═══════════════════════════════════════════
+           CONFETTI — light mode, 200 peças
+        ═══════════════════════════════════════════ */
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const COLORS = [
+            'rgba(244,160,  0,0.92)',
+            'rgba(244,130,  0,0.82)',
+            'rgba(255,200, 60,0.72)',
+            'rgba( 13, 13, 13,0.30)',
+            'rgba( 13, 13, 13,0.20)',
+        ];
+        const SHAPES = ['circle', 'rect', 'line'];
+        const PIECE_COUNT = window.innerWidth < 768 ? 90 : 200;
+
+        class Piece {
+            constructor(scatter) { this.reset(scatter); }
+            reset(scatter = false) {
+                this.x = Math.random() * canvas.width;
+                this.y = scatter ? Math.random() * canvas.height : -20;
+                this.size = Math.random() * 5 + 2;
+                this.speedY = Math.random() * 1.3 + 1.2;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.angle = Math.random() * Math.PI * 2;
+                this.spin = (Math.random() - 0.5) * 0.02;
+                this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                this.shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                this.aspect = Math.random() * 1.5 + 0.5;
+                this.opacity = Math.random() * 0.6 + 0.3;
+                this.fadeIn = scatter ? 1 : 0;
+            }
+            update(dt) {
+                this.y += this.speedY * dt;
+                this.x += this.speedX * dt;
+                this.angle += this.spin * dt;
+                if (this.fadeIn < 1) this.fadeIn = Math.min(1, this.fadeIn + 0.012 * dt);
+                if (this.y > canvas.height + 20) this.reset(false);
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity * this.fadeIn;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = this.color;
+                ctx.strokeStyle = this.color;
+                if (this.shape === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.shape === 'rect') {
+                    ctx.fillRect(
+                        -(this.size * this.aspect) / 2, -this.size / 2,
+                        this.size * this.aspect, this.size
+                    );
+                } else {
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.size * 1.8);
+                    ctx.lineTo(0, this.size * 1.8);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+        }
+
+        let pieces = [], lastTime = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        function initConfetti() {
+            resizeCanvas();
+            pieces = Array.from({ length: PIECE_COUNT }, () => new Piece(true));
+        }
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            pieces.forEach(p => { p.x = Math.random() * canvas.width; });
+        }, { passive: true });
+        function confettiLoop(ts) {
+            const dt = lastTime ? Math.min((ts - lastTime) / 16.667, 3) : 1;
+            lastTime = ts;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => { p.update(dt); p.draw(); });
+            requestAnimationFrame(confettiLoop);
+        }
+        initConfetti();
+        requestAnimationFrame(confettiLoop);
+
+        /* ═══════════════════════════════════════════
+           PARALLAX — mouse nos anéis geo
+        ═══════════════════════════════════════════ */
+        const geoPxEls = document.querySelectorAll('.geo-px');
+        let mouseNX = 0, mouseNY = 0, pxCurrX = 0, pxCurrY = 0;
+        const PX_MAX = 24, PX_LERP = 0.055;
+
+        document.addEventListener('mousemove', e => {
+            mouseNX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+            mouseNY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        }, { passive: true });
+
+        function parallaxLoop() {
+            pxCurrX += (mouseNX - pxCurrX) * PX_LERP;
+            pxCurrY += (mouseNY - pxCurrY) * PX_LERP;
+            geoPxEls.forEach(el => {
+                const d = parseFloat(el.dataset.depth);
+                const ox = (pxCurrX * d * PX_MAX).toFixed(2);
+                const oy = (pxCurrY * d * PX_MAX).toFixed(2);
+                el.style.transform = `translate(${ox}px,${oy}px)`;
+            });
+            requestAnimationFrame(parallaxLoop);
+        }
+        parallaxLoop();
+
+        /* ═══════════════════════════════════════════
+           SEQUÊNCIA DE ENTRADA
+        ═══════════════════════════════════════════ */
+        function startEntrance() {
+            /* anéis geo — stagger */
+            const geoEls = document.querySelectorAll(
+                '.geo-ring-1,.geo-ring-2,.geo-ring-3,.geo-ring-4,.geo-ring-5,' +
+                '.geo-sq-1,.geo-sq-2,.geo-sq-3,.geo-dot-1,.geo-dot-2,.geo-dot-3'
+            );
+            geoEls.forEach((el, i) => {
+                setTimeout(() => el.classList.add('geo-visible'), 100 + i * 70);
+            });
+
+            /* logo: scale+blur entry → float */
+            setTimeout(() => {
+                const img = document.getElementById('bio-logo-img');
+                const outer = document.getElementById('bio-logo-outer');
+                img.classList.add('logo-entering');
+                setTimeout(() => outer.classList.add('logo-floating'), 960);
+            }, 200);
+
+            /* tagline */
+            setTimeout(() => {
+                document.getElementById('bio-tagline').classList.add('el-visible');
+            }, 620);
+
+            /* pills */
+            setTimeout(() => {
+                document.getElementById('bio-seasons').classList.add('el-visible');
+            }, 840);
+
+            /* coluna de ações */
+            setTimeout(() => {
+                document.getElementById('bio-actions').classList.add('el-visible');
+            }, 1020);
+        }
+
+        document.fonts.ready.then(startEntrance);
+
+        /* ═══════════════════════════════════════════
+           CAPTAÇÃO DE E-MAIL
+        ═══════════════════════════════════════════ */
+        (function () {
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcAOzASeDABHGZZfMEMw0zVSmObsilrVwIftTMleBuae6SQXH5GJzlFdAPnn-pN4_BDA/exec';
+            const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+            const RATE_LIMIT = 60000;
+
+            function note(msg, err) {
+                const el = document.getElementById('bio-email-note');
+                if (!el) return;
+                el.textContent = msg;
+                el.style.color = err ? '#e53935' : '#6b6b6b';
+                setTimeout(() => { el.textContent = ''; }, 5000);
+            }
+
+            window.submitBioEmail = function () {
+                const input = document.getElementById('bio-email-input');
+                const btn = document.getElementById('bio-email-btn');
+                const honeypot = document.getElementById('bio-honeypot');
+                const email = input.value.trim();
+
+                if (honeypot && honeypot.value) return;
+
+                const last = parseInt(localStorage.getItem('nyr_last_email_submit') || '0');
+                if (Date.now() - last < RATE_LIMIT) {
+                    note('Aguarde um momento antes de tentar novamente.', true);
+                    return;
+                }
+                if (!email || !EMAIL_RE.test(email)) {
+                    input.style.outline = '2px solid #e53935';
+                    note('Digite um e-mail válido (ex: contato@loja.com.br).', true);
+                    setTimeout(() => { input.style.outline = ''; }, 2500);
+                    return;
+                }
+
+                btn.textContent = 'Enviando...';
+                btn.disabled = true;
+                input.disabled = true;
+
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ email })
+                }).then(res => {
+                    if (!res.ok) throw new Error();
+                    localStorage.setItem('nyr_last_email_submit', Date.now().toString());
+                    btn.textContent = '✓ Inscrito';
+                    input.value = '';
+                    input.placeholder = 'Obrigado!';
+                    note('E-mail cadastrado com sucesso!', false);
+                }).catch(() => {
+                    btn.textContent = 'Inscrever';
+                    btn.disabled = false;
+                    input.disabled = false;
+                    note('Erro ao cadastrar. Tente novamente em instantes.', true);
+                });
+            };
+
+            const input = document.getElementById('bio-email-input');
+            if (input) input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') window.submitBioEmail();
+            });
+        })();
+
+        /* ═══════════════════════════════════════════
+           E-MAIL — proteção Cloudflare via JS
+        ═══════════════════════════════════════════ */
+        (function () {
+            const el = document.getElementById('bio-email-addr');
+            if (el) el.textContent = ['vendas', 'mm88.com.br'].join('@');
+        })();
+
+        /* ═══════════════════════════════════════════
+           MODAL POLÍTICA DE PRIVACIDADE
+        ═══════════════════════════════════════════ */
+        (function () {
+            const modal = document.getElementById('modal-privacy');
+            const overlay = document.getElementById('modal-privacy-overlay');
+            const closeBtn = document.getElementById('modal-privacy-close');
+            const link = document.getElementById('privacy-link');
+
+            const open = () => { modal.removeAttribute('hidden'); document.body.style.overflow = 'hidden'; };
+            const close = () => { modal.setAttribute('hidden', ''); document.body.style.overflow = ''; };
+
+            if (link) link.addEventListener('click', e => { e.preventDefault(); open(); });
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (overlay) overlay.addEventListener('click', close);
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && !modal.hasAttribute('hidden')) close();
+            });
+        })();
+    </script>
+
+</body>
+
+</html>
