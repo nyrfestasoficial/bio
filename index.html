@@ -77,6 +77,9 @@
             inset: 0;
             z-index: 0;
             pointer-events: none;
+            transform: translateZ(0);
+            /* força GPU compositing */
+            will-change: transform;
         }
 
         /* ─── GEO LAYER ──────────────────────────── */
@@ -566,6 +569,7 @@
         /* animação de entrada */
         .bio-btn.btn-entering {
             animation: btn-wipe 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: clip-path, opacity;
         }
 
         /* estado final após entrada */
@@ -690,7 +694,7 @@
             min-height: 16px;
         }
 
-        /* ─── CONTATO ────────────────────────────── */
+        /* ─── CONTATO — botões pill ─────────────── */
         .bio-contact {
             display: flex;
             align-items: center;
@@ -704,19 +708,34 @@
             animation: block-rise 0.65s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .bio-contact-item {
+        .bio-contact-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             letter-spacing: 1.5px;
             color: var(--gray-text);
+            background: transparent;
+            border: 1px solid var(--gray-2);
+            border-radius: 100px;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: border-color var(--transition), color var(--transition),
+                background var(--transition);
         }
 
-        .bio-contact-dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: rgba(244, 160, 0, 0.5);
+        .bio-contact-pill:hover {
+            border-color: rgba(244, 160, 0, 0.50);
+            color: var(--brand-bg);
+            background: rgba(244, 160, 0, 0.06);
+        }
+
+        .bio-contact-pill-icon {
+            font-size: 13px;
+            line-height: 1;
             flex-shrink: 0;
         }
 
@@ -871,6 +890,13 @@
             .bio-tag-sub {
                 white-space: normal;
             }
+
+            /* Remove backdrop-filter em mobile — caro em GPU mobile */
+            .bio-footer {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                background: rgba(255, 255, 255, 0.98);
+            }
         }
 
         /* ─── MAX-HEIGHT — telas pequenas ────────── */
@@ -902,6 +928,25 @@
 
             .bio-actions-col {
                 gap: 14px;
+            }
+        }
+
+        /* ─── TABLET — 500px–859px ───────────────── */
+        @media (min-width: 500px) and (max-width: 859px) {
+            .bio-logo {
+                width: clamp(200px, 32vw, 260px);
+            }
+
+            .bio-tag-main {
+                font-size: clamp(26px, 4.5vw, 38px);
+            }
+
+            .bio-tag-sub {
+                font-size: clamp(18px, 3vw, 26px);
+            }
+
+            .bio-identity {
+                gap: clamp(22px, 4vh, 36px);
             }
         }
 
@@ -1208,9 +1253,12 @@
                 </div>
 
                 <div class="bio-contact">
-                    <span class="bio-contact-item">(11) 2337-4241</span>
-                    <div class="bio-contact-dot"></div>
-                    <span class="bio-contact-item" id="bio-email-addr"></span>
+                    <a href="tel:+551123374241" class="bio-contact-pill">
+                        <span class="bio-contact-pill-icon">📞</span>(11) 2337-4241
+                    </a>
+                    <a href="#" id="bio-email-link" class="bio-contact-pill">
+                        <span class="bio-contact-pill-icon">✉️</span><span id="bio-email-addr"></span>
+                    </a>
                 </div>
 
             </div>
@@ -1280,7 +1328,9 @@
             'rgba( 13, 13, 13,0.20)',
         ];
         const SHAPES = ['circle', 'rect', 'line'];
-        const PIECE_COUNT = window.innerWidth < 768 ? 90 : 200;
+        /* Reduz peças em telas de alta densidade — mantém fluidez em Retina/OLED */
+        const DPR = Math.min(window.devicePixelRatio || 1, 2);
+        const PIECE_COUNT = Math.round((window.innerWidth < 768 ? 90 : 200) / DPR);
 
         class Piece {
             constructor(scatter) { this.reset(scatter); }
@@ -1346,7 +1396,16 @@
             resizeCanvas();
             pieces.forEach(p => { p.x = Math.random() * canvas.width; });
         }, { passive: true });
+
+        /* Pausa o loop quando a aba fica em segundo plano */
+        let confettiPaused = false;
+        document.addEventListener('visibilitychange', () => {
+            confettiPaused = document.hidden;
+            if (!confettiPaused) { lastTime = 0; requestAnimationFrame(confettiLoop); }
+        });
+
         function confettiLoop(ts) {
+            if (confettiPaused) return;
             const dt = lastTime ? Math.min((ts - lastTime) / 16.667, 3) : 1;
             lastTime = ts;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1388,20 +1447,24 @@
             const el = document.querySelector(selector);
             if (!el || el.dataset.split) return;
             el.dataset.split = '1';
-            const text = el.textContent;
+            const text = el.textContent.trim();
             el.textContent = '';
-            [...text].forEach(ch => {
-                if (ch === ' ') {
-                    el.appendChild(document.createTextNode('\u00A0'));
-                    return;
-                }
-                const outer = document.createElement('span');
-                outer.className = 'char';
-                const inner = document.createElement('span');
-                inner.className = 'char-inner';
-                inner.textContent = ch;
-                outer.appendChild(inner);
-                el.appendChild(outer);
+            text.split(' ').forEach((word, wi, arr) => {
+                /* Word wrapper — linha só quebra entre palavras, nunca entre letras */
+                const wordWrap = document.createElement('span');
+                wordWrap.style.cssText = 'display:inline-block;white-space:nowrap;';
+                [...word].forEach(ch => {
+                    const outer = document.createElement('span');
+                    outer.className = 'char';
+                    const inner = document.createElement('span');
+                    inner.className = 'char-inner';
+                    inner.textContent = ch;
+                    outer.appendChild(inner);
+                    wordWrap.appendChild(outer);
+                });
+                el.appendChild(wordWrap);
+                /* Espaço regular = ponto de quebra válido para o browser */
+                if (wi < arr.length - 1) el.appendChild(document.createTextNode(' '));
             });
         }
 
@@ -1584,11 +1647,14 @@
         })();
 
         /* ═══════════════════════════════════════════
-           E-MAIL — proteção Cloudflare via JS
+           CONTATO — proteção Cloudflare via JS
         ═══════════════════════════════════════════ */
         (function () {
-            const el = document.getElementById('bio-email-addr');
-            if (el) el.textContent = ['vendas', 'mm88.com.br'].join('@');
+            const email = ['vendas', 'mm88.com.br'].join('@');
+            const addr = document.getElementById('bio-email-addr');
+            const link = document.getElementById('bio-email-link');
+            if (addr) addr.textContent = email;
+            if (link) link.href = 'mailto:' + email;
         })();
 
         /* ═══════════════════════════════════════════
