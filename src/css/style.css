@@ -725,7 +725,7 @@ button {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    background: rgba(255, 255, 255, 0.92);
+    background: var(--gray-1);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid rgba(244, 160, 0, 0.18);
