@@ -59,7 +59,7 @@
 
     <!-- ── FONTS ─────────────────────────────────── -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@400;500;600&family=Creepster&display=swap"
         rel="stylesheet">
 
     <!-- ── STYLES ────────────────────────────────── -->
@@ -189,11 +189,16 @@
                     </a>
                 </div>
 
+                <a href="https://nyrfestasoficial.github.io/halloween/" class="bio-btn-season" target="_blank"
+                    rel="noopener noreferrer" aria-label="Saiba mais sobre a Temporada Halloween 2026">
+                    👻 Temporada&nbsp;<span>Halloween 2026</span>
+                </a>
+
                 <div class="bio-newsletter">
                     <span class="bio-newsletter-label">Receber novidades no seu e-mail</span>
                     <div class="bio-email-row">
-                        <input class="bio-email-input" type="email" id="bio-email-input" placeholder="contato@email.com.br"
-                            autocomplete="email">
+                        <input class="bio-email-input" type="email" id="bio-email-input"
+                            placeholder="contato@email.com.br" autocomplete="email">
                         <input type="text" id="bio-honeypot" style="display:none" tabindex="-1" autocomplete="off">
                         <button class="bio-email-btn" id="bio-email-btn" onclick="submitBioEmail()">Inscrever</button>
                     </div>
@@ -475,13 +480,25 @@
                 });
             }, 1460);
 
-            /* 7 — Newsletter + Contact block-rise (t+1680ms) */
+            /* 6b — Botão sazonal block-rise (t+1700ms) */
+            setTimeout(() => {
+                const seasonal = document.querySelector('.bio-btn-season');
+                if (seasonal) {
+                    seasonal.classList.add('block-entering');
+                    seasonal.addEventListener('animationend', () => {
+                        seasonal.classList.remove('block-entering');
+                        seasonal.classList.add('season-revealed');
+                    }, { once: true });
+                }
+            }, 1700);
+
+            /* 7 — Newsletter + Contact block-rise (t+1880ms) */
             setTimeout(() => {
                 const nl = document.querySelector('.bio-newsletter');
                 const ct = document.querySelector('.bio-contact');
                 if (nl) nl.classList.add('block-entering');
                 setTimeout(() => { if (ct) ct.classList.add('block-entering'); }, 100);
-            }, 1680);
+            }, 1880);
         }
 
         /* ═══════════════════════════════════════════
